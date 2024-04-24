@@ -9,15 +9,15 @@ I used the Sail4J libraries to create a Java Code that generates the rule XMLs f
 This Utility provides you a way to build Sailpoint IIQ Rules in Eclipse and generate Rule XMLs ready to be deployed on your IIQ instance.
 
 # Libraries required
-commons-collections-3.2.jar
-commons-lang-2.6.jar
-commons-logging-1.3.1.jar
-guava-33.1.0-jre.jar
-identityiq.jar
-javaparser-core-3.18.0.jar
-log4j-jcl-2.23.1.jar
-sail4j-api-1.2.jar
-sail4j-transform-1.2.jar
-slf4j-api-1.6.1.jar
-velocity-1.6.2.jar
-velocity-tools-2.0.jar
+* commons-collections-3.2.jar
+* commons-lang-2.6.jar
+* commons-logging-1.3.1.jar
+* guava-33.1.0-jre.jar
+* identityiq.jar
+* javaparser-core-3.18.0.jar
+* log4j-jcl-2.23.1.jar
+* sail4j-api-1.2.jar
+* sail4j-transform-1.2.jar
+* slf4j-api-1.6.1.jar
+* velocity-1.6.2.jar
+* velocity-tools-2.0.jar
