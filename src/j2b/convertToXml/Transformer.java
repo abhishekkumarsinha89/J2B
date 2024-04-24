@@ -38,8 +38,15 @@ public class Transformer {
      */
     public static void main(String[] args) {
         // Define source and destination paths
-        String sourcePath = System.getProperty("user.dir") + "\\src\\j2b\\ruleDefinitions\\input\\";
-        String destinationPath = System.getProperty("user.dir") + "\\src\\output";
+        String sourcePath = "";
+
+        //example 
+        //String sourcePath = System.getProperty("user.dir") + "\\src\\j2b\\ruleDefinitions\\input\\";
+
+        String destinationPath = "";
+
+        //example
+        //String destinationPath = System.getProperty("user.dir") + "\\src\\output";
 
         // Create a File object for the source directory
         File path = new File(sourcePath);
@@ -51,8 +58,6 @@ public class Transformer {
         for (File file : files) {
             // Process only Java files
             if (file.isFile() && file.getName().endsWith(".java")) {
-                System.out.println(file);
-                System.out.println(file.getName());
 
                 // Create a RuleClassDefinition instance
                 RuleClassDefinition ruleClassDefinition = new RuleClassDefinition();
@@ -62,9 +67,6 @@ public class Transformer {
 
                 // Convert Java file to Rule XML
                 RuleDefinition ruleDefinition = ruleTransfomer.convertJavaToRuleXml(file, ruleClassDefinition);
-
-                System.out.println(ruleDefinition.getRuleName());
-                System.out.println(ruleDefinition.getRuleContent());
 
                 // Initialize Velocity engine
                 VelocityEngine ve = new VelocityEngine();
@@ -80,7 +82,7 @@ public class Transformer {
                     ve.init();
 
                     // Create a FileWriter for the destination XML file
-                    Writer writer = new FileWriter(new File(destinationPath + "\\" + file.getName().replace(".java", ".xml")));
+                    Writer writer = new FileWriter(new File(destinationPath + File.pathSeparator + file.getName().replace(".java", ".xml")));
 
                     // Get the Velocity template
                     Template template = ve.getTemplate(templatePath, "UTF-8");
@@ -104,3 +106,4 @@ public class Transformer {
         }
     }
 }
+ 
