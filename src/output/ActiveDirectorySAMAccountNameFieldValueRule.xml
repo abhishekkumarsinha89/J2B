@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE Rule PUBLIC "sailpoint.dtd" "sailpoint.dtd">
+<Rule language="beanshell" name="ActiveDirectorySAMAccountName" type="FieldValue">
+  <Description>
+This rule can be used to generate a field value (eg - an account name) using data from the given Identity. If this rule is run in the context of a workflow step then the arguments passed into the step will also be available. Also, any field values that have been processed so far from the policy related to the Application/Role will be available.
+  </Description>
+  <Source><![CDATA[
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import sailpoint.api.SailPointContext;
+import sailpoint.object.Application;
+import sailpoint.object.Identity;
+import sailpoint.tools.GeneralException;
+
+private static Log ruleLog = LogFactory.getLog("rule.library.active.directory");
+
+public String getActiveDirectoryUniqueName(SailPointContext context, Identity identity, Application adApplication, boolean escapeName) throws GeneralException {
+    ruleLog.debug("=== Generate Active Directory Unique username ===");
+    String strUserName = "";
+    try {
+        String strFirstName = identity.getFirstname();
+        String strLastName = identity.getLastname();
+        // Code to handle unusual case of names are blank
+        if (StringUtils.isEmpty(strFirstName) || StringUtils.isEmpty(strLastName)) {
+            ruleLog.debug("=== strFirstName and or strLastName is null/empty ===");
+            return "";
+        }
+        // Code to Replace special characters from the last name
+        if (!StringUtils.isBlank(strLastName)) {
+            strLastName = strLastName.replaceAll("[^a-zA-Z0-9]+", "").toUpperCase();
+        }
+        if (!StringUtils.isBlank(strFirstName)) {
+            strFirstName = strFirstName.replaceAll("[^a-zA-Z0-9]+", "").toUpperCase();
+        }
+        // Code to get the first initial of First Name in a variable
+        String strFirstNameSub = StringUtils.substring(strFirstName, 0, 1);
+        String strLastNameSub = "";
+        strUserName = strLastName + strFirstNameSub;
+        ruleLog.debug("adAccountName created initially: " + strUserName);
+        int iLength = StringUtils.length(strUserName);
+        ruleLog.debug("Length of the adAccountName created initially: " + iLength);
+        // Code to get the basic adAccountName
+        if (iLength > 8) {
+            strLastNameSub = StringUtils.substring(strLastName, 0, 8 - iLength);
+            ruleLog.debug("strLastNameSub 8-iLength" + strLastNameSub);
+            strUserName = strLastNameSub + strFirstNameSub;
+            ruleLog.debug("adAccountName created after checking length: " + strUserName);
+        }
+        do {
+            // Check if the calculated username exists in AD
+            if (!userNameExistInActiveDirectory(context, identity, adApplication, strUserName)) {
+                break;
+            }
+            // Check the numeric value added to create the unique adAccountName
+            String strUser = strUserName.replaceAll("[^0-9]", "");
+            int iNumber = 0;
+            if (!StringUtils.isBlank(strUser)) {
+                iNumber = Integer.valueOf(strUser).intValue();
+            }
+            int iLengthNumber = String.valueOf(iNumber + 1).length();
+            // Create the adAccountName by adding numeric values to make it generic
+            strLastNameSub = StringUtils.substring(strLastName, 0, 7 - iLengthNumber);
+            strUserName = strLastNameSub + strFirstNameSub;
+            iNumber++;
+            strUserName += iNumber;
+            ruleLog.debug("adAccountName generated with numbers after duplicate found: " + strUserName);
+        } while (true);
+        ruleLog.debug("Final User ID created for the new Identity: " + strUserName);
+    } catch (Exception ex) {
+        ruleLog.error("Exception while calcualting Identity adAccountName: ", ex);
+        return "";
+    }
+    return strUserName;
+}
+
+String userName = getActiveDirectoryUniqueName(context, identity, application, true);
+return userName;
+
+  ]]></Source>
+</Rule>
